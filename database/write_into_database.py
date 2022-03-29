@@ -1,7 +1,6 @@
 import pybgpstream
 import pymongo
 from enum import Enum
-import argparse
 
 class StreamType(Enum):
     """
