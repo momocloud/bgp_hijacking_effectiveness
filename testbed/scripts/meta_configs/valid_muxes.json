@@ -1,0 +1,14 @@
+{ "up": ["amsterdam01", "neu01"],
+  "down": ["gatech01",
+    "seattle01",
+    "utah01",
+    "uw01",
+    "clemson01",
+    "saopaulo01",
+    "isi01",
+    "phoenix01",
+    "wisc01",
+    "ufms01",
+    "ufmg01",
+    "grnet01"]
+}
