@@ -36,7 +36,5 @@ For WSL, we use version 1 since we don't want to use hyper-v. You can try this [
 ### Required python version and modules
 
 1. Python (>=3.5)
-
 2. [PyBGPStream](https://github.com/caida/pybgpstream)
-
 3. [PyMongo](https://pymongo.readthedocs.io/en/stable/)
