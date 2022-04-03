@@ -3,3 +3,4 @@ announcement/single/*
 withdrawal/pair/*
 withdrawal/single/*
 /test*
+/__pycache__
