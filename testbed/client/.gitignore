@@ -10,3 +10,4 @@ revtr*outdir
 utils/prefix-propagation/query.out
 /certs/client.crt
 /certs/client.key
+/__pycache__
