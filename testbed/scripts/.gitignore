@@ -1,5 +1,5 @@
-announcement/pair/*
-announcement/single/*
+/exp_confs/announcement/pair/*
+/exp_confs/announcement/single/*
 withdrawal/pair/*
 withdrawal/single/*
 /test*
