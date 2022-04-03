@@ -1,8 +1,14 @@
 # About data format stored into database
 
-## Before we use it
+## How to config the environment
 
-We use [MongoDB](https://www.mongodb.com/) to store the data (ribs and updates). Community edition 5.0 is used in this project. You can try the offical guide [here](https://www.mongodb.com/docs/manual/administration/install-community/) to install it.
+Because in this project we need to use [PyBGPStream](https://bgpstream.caida.org/docs/install/pybgpstream) to get data from BGPStream, we have to run python files in Linux environment since PyBGPStream can be only run in Linux. Besides, we use [MongoDB (community edition 5.0)](https://www.mongodb.com/) to store the data (ribs and updates). So basicly, we need a Linux environment running Python (>3.7) and connectable MongoDB environment.
+
+Right now we have two ways to config it. One way is to run all in one Linux environment like a virtual machine. The other way is to run MongoDB in Windows and run Python in [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/).
+
+### Run all in Linux environment
+
+For MongoDB, you can try the [offical guide](https://www.mongodb.com/docs/manual/administration/install-on-linux/) to install it for your distribution.
 
 After installing it, start mongod before running the scripts. For we are using Ubuntu 20Lts, mongod can be started by running such command.
 
@@ -12,4 +18,17 @@ sudo service mongod start
 
 Besides, if your want to connect it from other machine (like from physical machine to virtual machine), you should change the IP setting to 0.0.0.0 in the `net` part of configuation file written in the offical guide. For Ubuntu 20, you can check [here](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/#:~:text=to%20these%20directories.-,Configuration%20File,-The%20official%20MongoDB) to edit that file.
 
-Meanwhile, [pymongo](https://pypi.org/project/pymongo/) is also used in the scripts to operate the database.
+### Run in Windows with WSL 1
+
+For MongoDB, you can try the [offical guide](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/) to install it. Basicly, it is to download a [msi installer](https://www.mongodb.com/try/download/community?tck=docs_server) and install it locally.
+
+After install it, start MongoDB service before running the scripts. Use following command to start or stop MongoDB in your windows shell as administrator.
+
+```powershell
+net start MongoDB  // start MongoDB
+net stop MongoDB   // stop MongoDB
+```
+
+Because we still need virtual machine to run peering testbed scripts, so we use WSL 1 instead of WSL 2. And since WSL 1 can directly get access to Windows, so we don't need to config the net for MongoDB in Windows.
+
+For WSL, we use version 1 since we don't want to use hyper-v. You can try this [documentation](https://www.ridom.de/seqsphere/u/Windows_Subsystem_For_Linux.html) to install it. Then you can install the Python and Python modules needed like in one Linux system.
