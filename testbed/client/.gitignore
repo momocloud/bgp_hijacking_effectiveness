@@ -8,3 +8,5 @@ configs/bird6/prefix-filters
 configs/bird6/route-announcements
 revtr*outdir
 utils/prefix-propagation/query.out
+/certs/client.crt
+/certs/client.key
