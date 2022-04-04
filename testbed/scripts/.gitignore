@@ -4,3 +4,4 @@
 /exp_confs/withdrawal/single/*
 /test*
 /__pycache__
+/experiments.log
