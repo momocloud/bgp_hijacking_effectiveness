@@ -76,7 +76,7 @@ class AnnouncementController:
 
     def log(self, announcement):
         with open("../scripts/experiments.log", 'a') as f:
-            f.write("\n" + str(datetime.datetime.now())+ "|")
+            f.write("\n" + str(datetime.datetime.utcnow())+ "|")
             f.write( str(int(time.time()))+ "|")
             f.write(json.dumps(announcement))
 
