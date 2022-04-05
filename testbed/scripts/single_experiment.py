@@ -29,6 +29,7 @@ class Experiment():
         utils.control_mux_tun(self.muxes, True)
         utils.control_mux_bird(True)
         pprint(f'Up muxes: {utils.get_up_vpn_muxes(utils.extract_vpn_mux_status())}')
+        time.sleep(5)
         pprint(f'Established birds: {utils.get_established_bird_muxes(utils.extract_bird_mux_status())}')
 
 
@@ -42,7 +43,7 @@ class Experiment():
         for conf in self.announce_exp_confs:
             print(f'Deploying announcement {conf}...')
             self.controller.deploy(conf)
-            self.deploy_timestamp.setdefault(str(conf), time.time())
+            self.deploy_timestamp.setdefault(str(conf), int(time.time()))
 
     def deploy_withdrawal(self):
         '''
@@ -54,10 +55,12 @@ class Experiment():
         for conf in self.withdraw_exp_confs:
             print(f'Deploying withdrawal {conf}...')
             self.controller.deploy(conf)
-            self.deploy_timestamp.setdefault(str(conf), time.time())
+            self.deploy_timestamp.setdefault(str(conf), int(time.time()))
 
     def close(self):
         '''
         Close the mux tunnel and bird.
         '''
+        print('Closing the client...')
         utils.close_client()
+        print('Close finished!')
