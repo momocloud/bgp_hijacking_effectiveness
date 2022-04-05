@@ -1,4 +1,4 @@
-{ "up": ["amsterdam01", "neu01"],
+{ "up": ["amsterdam01", "grnet01"],
   "down": ["gatech01",
     "seattle01",
     "utah01",
@@ -10,5 +10,5 @@
     "wisc01",
     "ufms01",
     "ufmg01",
-    "grnet01"]
+    "neu01"]
 }
