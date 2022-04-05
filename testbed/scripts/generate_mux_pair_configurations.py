@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 import argparse
 from itertools import combinations
 import os
 import utils
+import random
 
 PEERING_PREFIX = "184.164.236.0/24"
 VICTIM = 61574 
@@ -42,13 +41,14 @@ assert VICTIM in utils.load_json(ASN_PATH).get("up", [])
 PEERING_PREFIX = args.peering_prefix
 assert PEERING_PREFIX in utils.load_json(PREFIX_PATH).get("up", [])
 
+asn_left = list(set(utils.load_json(ASN_PATH).get("up", [])) - {HIJACKER, VICTIM})
 
 if args.exp_type == 'A':
     out_dir = os.path.join(args.out_dir, DIR_ANNOUNCEMENTS)
     if args.type_num <= 0:
         as_path = [HIJACKER]
     else:
-        as_path = [HIJACKER] * args.type_num + [VICTIM]
+        as_path = [HIJACKER] + random.sample(asn_left, args.type_num) + [VICTIM]
 elif args.exp_type == 'W':
     out_dir = os.path.join(args.out_dir, DIR_WITHDRAWALS)
 utils.create_dir(out_dir)
