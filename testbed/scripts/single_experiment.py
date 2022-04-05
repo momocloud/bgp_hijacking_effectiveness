@@ -7,8 +7,8 @@ sys.path.insert(0, '../client')
 
 class Experiment():
     def __init__(self, *exp_confs):
-        self.announce_exp_confs = [conf for conf in exp_confs if 'announce' in conf]
-        self.withdraw_exp_confs = [conf for conf in exp_confs if 'withdraw' in conf]
+        self.announce_exp_confs = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf]
+        self.withdraw_exp_confs = [utils.load_json(conf) for conf in exp_confs if 'withdraw' in conf]
         self.muxes = set()
         self.controller = utils.BGPController()
         self.deploy_timestamp = dict()
@@ -42,7 +42,7 @@ class Experiment():
         for conf in self.announce_exp_confs:
             print(f'Deploying announcement {conf}...')
             self.controller.deploy(conf)
-            self.deploy_timestamp.setdefault(conf, time.time())
+            self.deploy_timestamp.setdefault(str(conf), time.time())
 
     def deploy_withdrawal(self):
         '''
@@ -54,7 +54,7 @@ class Experiment():
         for conf in self.withdraw_exp_confs:
             print(f'Deploying withdrawal {conf}...')
             self.controller.deploy(conf)
-            self.deploy_timestamp.setdefault(conf, time.time())
+            self.deploy_timestamp.setdefault(str(conf), time.time())
 
     def close(self):
         '''
