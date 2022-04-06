@@ -1,5 +1,6 @@
-{ "up": ["amsterdam01", "grnet01"],
-  "down": ["gatech01",
+{ "up": ["wisc01", "grnet01"],
+  "down": ["amsterdam01",
+    "gatech01",
     "seattle01",
     "utah01",
     "uw01",
@@ -7,7 +8,6 @@
     "saopaulo01",
     "isi01",
     "phoenix01",
-    "wisc01",
     "ufms01",
     "ufmg01",
     "neu01"]
