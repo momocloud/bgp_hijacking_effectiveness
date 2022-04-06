@@ -50,6 +50,8 @@ if args.exp_type == 'A':
         as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
 elif args.exp_type == 'W':
     out_dir = os.path.join(args.out_dir, DIR_WITHDRAWALS)
+out_dir = os.path.join(args.out_dir, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
+
 utils.create_dir(out_dir)
 
 

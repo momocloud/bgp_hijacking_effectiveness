@@ -55,7 +55,12 @@ utils.create_dir(out_dir)
 
 
 for mux_pair in combinations(muxes, 2):
+    out_dir = os.path.join(out_dir, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
+    utils.create_dir(out_dir)
+
+    # ANNOUNCEMENT
     if args.exp_type == 'A':
+        # VICTIM
         exp_conf = {
             PEERING_PREFIX: {
                 "announce": [
@@ -64,7 +69,16 @@ for mux_pair in combinations(muxes, 2):
                             mux_pair[0]
                         ],
                         "origin": VICTIM
-                    },
+                    }
+                ]
+            }
+        }
+        utils.dump_json(f"{out_dir}/announce_victim_{mux_pair[0]}.json", exp_conf, indent=2)
+
+        #HIJACKER
+        exp_conf = {
+            PEERING_PREFIX: {
+                "announce": [
                     {
                         "muxes": [
                             mux_pair[1]
@@ -75,7 +89,9 @@ for mux_pair in combinations(muxes, 2):
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/announce_{mux_pair[0]}_{mux_pair[1]}.json", exp_conf, indent=2)
+        utils.dump_json(f"{out_dir}/announce_hijacker_{mux_pair[1]}.json", exp_conf, indent=2)
+
+    #WITHDRAW
     elif args.exp_type == 'W':
         exp_conf = {
             PEERING_PREFIX: {
