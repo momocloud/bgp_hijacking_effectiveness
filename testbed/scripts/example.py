@@ -12,7 +12,7 @@ for r, _, fs in os.walk('./exp_confs/pair/h_grnet01-j_wisc01/h_263842-v_61576/ty
 
 exp = Experiment(*confs)
 
-exp.deploy_announcement()
+exp.deploy_all_announcement()
 time.sleep(600)
 exp.deploy_withdrawal()
 time.sleep(600)
