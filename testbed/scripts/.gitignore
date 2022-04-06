@@ -1,7 +1,5 @@
-/exp_confs/announcement/pair/*
-/exp_confs/announcement/single/*
-/exp_confs/withdrawal/pair/*
-/exp_confs/withdrawal/single/*
+/exp_confs/pair/*
+/exp_confs/single/*
 /test*
 /__pycache__
 /experiments.log

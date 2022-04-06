@@ -7,8 +7,7 @@ import random
 PEERING_PREFIX = "184.164.236.0/24"
 VICTIM = 61574 
 HIJACKER = 61575
-DIR_ANNOUNCEMENTS = "announcement/pair"
-DIR_WITHDRAWALS = "withdrawal/pair"
+DIR_TYPE = "pair"
 MUX_PATH = "./meta_configs/valid_muxes.json"
 ASN_PATH = "./meta_configs/valid_asns.json"
 PREFIX_PATH = "./meta_configs/valid_prefixes.json"
@@ -44,19 +43,20 @@ assert PEERING_PREFIX in utils.load_json(PREFIX_PATH).get("up", [])
 asn_left = list(set(utils.load_json(ASN_PATH).get("up", [])) - {HIJACKER, VICTIM})
 
 if args.exp_type == 'A':
-    out_dir = os.path.join(args.out_dir, DIR_ANNOUNCEMENTS)
     if args.type_num <= 0:
         as_path = [HIJACKER]
     else:
         as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
-elif args.exp_type == 'W':
-    out_dir = os.path.join(args.out_dir, DIR_WITHDRAWALS)
-utils.create_dir(out_dir)
+
+out_dir = os.path.join(args.out_dir, DIR_TYPE)
 
 
 for mux_pair in combinations(muxes, 2):
-    out_dir = os.path.join(out_dir, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
-    utils.create_dir(out_dir)
+    out_dir = os.path.join(out_dir, f'h_{mux_pair[1]}-j_{mux_pair[0]}', f'h_{HIJACKER}-v_{VICTIM}', f'type{args.type_num}')
+    announce_out_dir = os.path.join(out_dir, 'announcement')
+    withdrawal_out_dir = os.path.join(out_dir, 'withdrawal')
+    utils.create_dir(announce_out_dir)
+    utils.create_dir(withdrawal_out_dir)
 
     # ANNOUNCEMENT
     if args.exp_type == 'A':
@@ -73,7 +73,7 @@ for mux_pair in combinations(muxes, 2):
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/announce_victim_{mux_pair[0]}.json", exp_conf, indent=2)
+        utils.dump_json(f"{announce_out_dir}/announce_victim_{mux_pair[0]}.json", exp_conf, indent=2)
 
         #HIJACKER
         exp_conf = {
@@ -89,7 +89,7 @@ for mux_pair in combinations(muxes, 2):
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/announce_hijacker_{mux_pair[1]}.json", exp_conf, indent=2)
+        utils.dump_json(f"{announce_out_dir}/announce_hijacker_{mux_pair[1]}.json", exp_conf, indent=2)
 
     #WITHDRAW
     elif args.exp_type == 'W':
@@ -101,4 +101,4 @@ for mux_pair in combinations(muxes, 2):
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/withdraw_{mux_pair[0]}_{mux_pair[1]}.json", exp_conf, indent=2)
+        utils.dump_json(f"{withdrawal_out_dir}/withdraw_{mux_pair[0]}_{mux_pair[1]}.json", exp_conf, indent=2)

@@ -6,8 +6,7 @@ import random
 PEERING_PREFIX = "184.164.236.0/24"
 VICTIM = 61574 
 HIJACKER = 61575
-DIR_ANNOUNCEMENTS = "announcement/single"
-DIR_WITHDRAWALS = "withdrawal/single"
+DIR_TYPE = "single"
 MUX_PATH = "./meta_configs/valid_muxes.json"
 ASN_PATH = "./meta_configs/valid_asns.json"
 PREFIX_PATH = "./meta_configs/valid_prefixes.json"
@@ -43,17 +42,16 @@ assert PEERING_PREFIX in utils.load_json(PREFIX_PATH).get("up", [])
 asn_left = list(set(utils.load_json(ASN_PATH).get("up", [])) - {HIJACKER, VICTIM})
 
 if args.exp_type == 'A':
-    out_dir = os.path.join(args.out_dir, DIR_ANNOUNCEMENTS)
     if args.type_num <= 0:
         as_path = [HIJACKER]
     else:
         as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
-elif args.exp_type == 'W':
-    out_dir = os.path.join(args.out_dir, DIR_WITHDRAWALS)
-out_dir = os.path.join(args.out_dir, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
 
-utils.create_dir(out_dir)
-
+out_dir = os.path.join(args.out_dir, DIR_TYPE, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
+announce_out_dir = os.path.join(out_dir, 'announcement')
+withdrawal_out_dir = os.path.join(out_dir, 'withdrawal')
+utils.create_dir(announce_out_dir)
+utils.create_dir(withdrawal_out_dir)
 
 for mux in muxes:
     if args.exp_type == 'A':
@@ -70,7 +68,7 @@ for mux in muxes:
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/announce_{mux}_{HIJACKER}.json", exp_conf, indent=2)
+        utils.dump_json(f"{announce_out_dir}/announce_{mux}_{HIJACKER}.json", exp_conf, indent=2)
     elif args.exp_type == 'W':
         exp_conf = {
             PEERING_PREFIX: {
@@ -79,4 +77,4 @@ for mux in muxes:
                 ]
             }
         }
-        utils.dump_json(f"{out_dir}/withdraw_{mux}.json", exp_conf, indent=2)
+        utils.dump_json(f"{withdrawal_out_dir}/withdraw_{mux}.json", exp_conf, indent=2)
