@@ -29,7 +29,6 @@ class Experiment():
         '''
         up_muxes = utils.get_up_vpn_muxes(utils.extract_vpn_mux_status())
         if len(self.muxes-up_muxes) != 0:
-            self._open_client()
             print('Need to open client!')
             utils.control_mux_tun(self.muxes, True)
             utils.control_mux_bird(True)
