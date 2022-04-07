@@ -27,7 +27,7 @@ For such mux configuration,
 
 ```json
 { "up": ["wisc01", "grnet01"],
-  "down": [...]
+  "down": ["..."]
 }
 ```
 
