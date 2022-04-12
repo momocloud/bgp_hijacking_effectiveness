@@ -35,6 +35,7 @@ class Experiment():
             pprint(f'Up muxes: {utils.get_up_vpn_muxes(utils.extract_vpn_mux_status())}')
             time.sleep(5)
             pprint(f'Established birds: {utils.get_established_bird_muxes(utils.extract_bird_mux_status())}')
+            time.sleep(10)
         
     def _deploy_one_conf(self, conf):
         self._open_client()
