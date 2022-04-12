@@ -1,0 +1,33 @@
+[
+    {"$match" : { 
+        "latest" : true
+        }
+    }, 
+    {"$match" : { 
+            "collector" : null
+        }
+    }, 
+    {"$match" : { 
+        "$expr" : { 
+            "$eq" : 
+                [
+                    { 
+                        "$slice" : [
+                            "$as_path", 
+                            -1
+                        ]
+                    }, 
+                    [47065]
+                ]
+            }
+        }
+    }, 
+    { 
+        "$group" : { 
+            "_id" : "$peer_asn",
+            "count" : { 
+                "$sum" : 1
+            }
+        }
+    }
+]
