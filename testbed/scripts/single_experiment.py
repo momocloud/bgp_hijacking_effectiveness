@@ -38,7 +38,6 @@ class Experiment():
         
     def _deploy_one_conf(self, conf):
         self._open_client()
-        print(f'Deploying announcement {conf}...')
         self.controller.deploy(conf)
         self.deploy_timestamp.setdefault(str(conf), int(time.time()))
         time.sleep(ANNOUNCE_COOLING_TIME)
@@ -48,6 +47,7 @@ class Experiment():
         Deploy the victims' announements.
         '''
         for conf in self.announce_exp_confs_vic:
+            print(f'Deploying victim announcement {conf}...')
             self._deploy_one_conf(conf)
     
     def deploy_hijacker_announcement(self):
@@ -55,26 +55,23 @@ class Experiment():
         Deploy the hijacker's announcements.
         '''
         for conf in self.announce_exp_confs_hij:
+            print(f'Deploying hijacking announcement {conf}...')
             self._deploy_one_conf(conf)
         
     def deploy_all_announcement(self):
         '''
-        Deploy announcement.
+        Deploy all announcements.
         '''
         self.deploy_victim_announcement()
         self.deploy_hijacker_announcement()
 
     def deploy_withdrawal(self):
         '''
-        Deploy withdrawal.
+        Deploy withdrawals.
         '''
-        up_muxes = utils.get_up_vpn_muxes(utils.extract_vpn_mux_status())
-        if len(self.muxes-up_muxes) != 0:
-            self._open_client()
         for conf in self.withdraw_exp_confs:
             print(f'Deploying withdrawal {conf}...')
-            self.controller.deploy(conf)
-            self.deploy_timestamp.setdefault(str(conf), int(time.time()))
+            self._deploy_one_conf(conf)
 
     def close(self):
         '''
