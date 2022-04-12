@@ -38,6 +38,7 @@ class DataManager():
         if monitors is None:
             monitors = self.all_mons
         
+        as_path_slice = [str(as_path) for as_path in as_path_slice]
         slice_len = len(as_path_slice)
 
         agg_pipelines = []
