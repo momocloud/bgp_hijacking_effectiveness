@@ -52,7 +52,7 @@ out_dir = os.path.join(args.out_dir, DIR_TYPE)
 
 
 for mux_pair in combinations(muxes, 2):
-    out_dir = os.path.join(out_dir, f'h_{mux_pair[1]}-j_{mux_pair[0]}', f'h_{HIJACKER}-v_{VICTIM}', f'type{args.type_num}')
+    out_dir = os.path.join(out_dir, f'h_{mux_pair[1]}-v_{mux_pair[0]}', f'h_{HIJACKER}-v_{VICTIM}', f'type{args.type_num}')
     announce_out_dir = os.path.join(out_dir, 'announcement')
     withdrawal_out_dir = os.path.join(out_dir, 'withdrawal')
     utils.create_dir(announce_out_dir)

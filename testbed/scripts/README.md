@@ -42,7 +42,7 @@ to get:
 ```txt
 ├── exp_confs
 │   └── pair
-│       └── h_grnet01-j_wisc01
+│       └── h_grnet01-v_wisc01
 │           └── h_263842-v_61576
 │               └── type3
 │                   ├── announcement
