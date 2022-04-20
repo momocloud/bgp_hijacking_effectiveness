@@ -60,14 +60,18 @@ def parse_rib_into_db(db_collection: pymongo.collection.Collection, stream: pybg
 def parse_update_into_db(db_collection: pymongo.collection.Collection, stream: pybgpstream.BGPStream):
     for elem in stream:
         parsed_dict = parse_to_dict(elem)
-        query_dict_gt = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"], "second_asn": parsed_dict["second_asn"],
+        # query_dict_gt = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"], "second_asn": parsed_dict["second_asn"],
+        #             "ori_asn": parsed_dict["ori_asn"], "peer_address": parsed_dict["peer_address"], "router": parsed_dict["router"], "time": { "$gt": parsed_dict["time"]}, "latest": True}
+        query_dict_gt = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"],
                     "ori_asn": parsed_dict["ori_asn"], "peer_address": parsed_dict["peer_address"], "router": parsed_dict["router"], "time": { "$gt": parsed_dict["time"]}, "latest": True}
         if db_collection.count_documents(query_dict_gt) > 0:
             parsed_dict["latest"] = False
             db_collection.insert_one(parsed_dict)
             print(elem)
         else:
-            query_dict_lte = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"], "second_asn": parsed_dict["second_asn"],
+            # query_dict_lte = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"], "second_asn": parsed_dict["second_asn"],
+            #         "ori_asn": parsed_dict["ori_asn"], "peer_address": parsed_dict["peer_address"], "router": parsed_dict["router"], "time": { "$lte": parsed_dict["time"]}, "latest": True}
+            query_dict_lte = {"project": parsed_dict["project"], "collector": parsed_dict["collector"], "peer_asn": parsed_dict["peer_asn"],
                     "ori_asn": parsed_dict["ori_asn"], "peer_address": parsed_dict["peer_address"], "router": parsed_dict["router"], "time": { "$lte": parsed_dict["time"]}, "latest": True}
             db_collection.update_many(query_dict_lte, {"$set": {"latest": False}})
             db_collection.insert_one(parsed_dict)
