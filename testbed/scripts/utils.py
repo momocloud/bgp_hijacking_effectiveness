@@ -14,16 +14,21 @@ LOCAL_OPERATE_INTERVAL = 5
 BIRD_CFG_DIR = '../client/configs/bird'
 BIRD_SOCK = '../client/var/bird.ctl'
 SCHEMA_FN = '../client/configs/announcement_schema.json'
+PEERS_INFO = './meta_configs/peers.json'
 
 class PeerFields(Enum):
     BGP_MUX = "BGP Mux"
     PEER_ASN = "Peer ASN"
     PEER_IP_ADDRESS = "Peer IP Address"
-    IP_VERSION = "IP Version"
+    IP_VERSION = "IP version"
     SHORT_DESCRIPTION = "Short Description"
     TRANSIT = "Transit"
     ROUTE_SERVER = "Route Server"
     SESSION_ID = "Session ID"
+
+class IPVersion(Enum):
+    IPv4 = 'IPv4'
+    IPv6 = 'IPv6'
 
 class BGPController():
     def __init__(self) -> None:
@@ -215,4 +220,35 @@ def close_client():
         ['service', 'network-manager', 'restart']
     )
     time.sleep(LOCAL_OPERATE_INTERVAL)
-    
+
+def get_peers(mux: str = None, is_transit: bool = None, session_id: int = None, ip_version: IPVersion = None):
+    '''
+    Get peers from mux and transit state.
+    '''
+    peers_list = load_json(PEERS_INFO)
+    peers_list_to_return = []
+    for peer in peers_list:
+        if mux is not None and peer[PeerFields.BGP_MUX.value] != mux:
+            continue
+        if (is_transit is not None) and ((is_transit and peer[PeerFields.TRANSIT.value] == '✘') or (not is_transit and peer[PeerFields.TRANSIT.value] == '✔')):
+            continue
+        if session_id is not None and peer[PeerFields.SESSION_ID.value] != str(session_id):
+            continue
+        if ip_version is not None and peer[PeerFields.IP_VERSION.value] != ip_version.value:
+            continue
+        peers_list_to_return.append(peer)
+    return peers_list_to_return
+
+def extract_keyfield_from_peers(peers, *key_fields: PeerFields):
+    '''
+    Extract key field from peers.
+    '''
+    return_tuple = []
+    for key_field in key_fields:
+        assert key_field in PeerFields
+        return_tuple.append([peer[key_field.value] for peer in peers])
+    return tuple(return_tuple)
+
+
+if __name__ == '__main__':
+    print(extract_keyfield_from_peers(get_peers(mux = 'ufmg01'), PeerFields.SESSION_ID)[0])
