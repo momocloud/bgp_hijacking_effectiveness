@@ -59,6 +59,9 @@ if args.exp_type == 'A':
         as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
 
 out_dir = os.path.join(args.out_dir, DIR_TYPE, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
+if peers_id is not None:
+    out_dir = os.path.join(out_dir, '/'.join(peers_id))
+    
 announce_out_dir = os.path.join(out_dir, 'announcement')
 withdrawal_out_dir = os.path.join(out_dir, 'withdrawal')
 utils.create_dir(announce_out_dir)
