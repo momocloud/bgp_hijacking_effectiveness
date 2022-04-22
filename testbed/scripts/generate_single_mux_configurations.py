@@ -26,7 +26,7 @@ parser.add_argument('-p', '--peering_prefix', dest='peering_prefix', type=str,
                     help='the prefix of peering, default is 184.164.236.0/24', default=PEERING_PREFIX)
 parser.add_argument('-m', '--peering_mux', dest='peering_mux', type=str,
                     help='the mux of peering, default is "amsterdam01"', default="amsterdam01")
-parser.add_argument('-d', '--peers_id', dest='peers_id', type=str, nargs='+',
+parser.add_argument('-d', '--peers_id', dest='peers_id', type=int, nargs='+',
                     help='the id of peers, default is None', default=None)
 args = parser.parse_args()
 
@@ -48,7 +48,7 @@ assert PEERING_PREFIX in utils.load_json(PREFIX_PATH).get("up", [])
 peers_id = args.peers_id
 if peers_id is not None:
     for peer_id in peers_id:
-        assert peer_id in utils.extract_keyfield_from_peers(utils.get_peers(mux = mux), utils.PeerFields.SESSION_ID)[0]
+        assert str(peer_id) in utils.extract_keyfield_from_peers(utils.get_peers(mux = mux), utils.PeerFields.SESSION_ID)[0]
 
 asn_left = list(set(utils.load_json(ASN_PATH).get("up", [])) - {HIJACKER, VICTIM})
 
@@ -60,7 +60,7 @@ if args.exp_type in 'AB':
 
 out_dir = os.path.join(args.out_dir, DIR_TYPE, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
 if peers_id is not None:
-    out_dir = os.path.join(out_dir, '/'.join(peers_id))
+    out_dir = os.path.join(out_dir, '/'.join([str(peer_id) for peer_id in peers_id]))
 
 announce_out_dir = os.path.join(out_dir, 'announcement')
 withdrawal_out_dir = os.path.join(out_dir, 'withdrawal')
@@ -83,6 +83,8 @@ if args.exp_type in 'AB':
     }
     if peers_id is not None:
         exp_conf[PEERING_PREFIX]["announce"][0]["peers"] = peers_id
+    if not exp_conf[PEERING_PREFIX]["announce"][0]["prepend"]:
+        exp_conf[PEERING_PREFIX]["announce"][0].pop("prepend", None)
     utils.dump_json(f"{announce_out_dir}/announce_{mux}_{HIJACKER}.json", exp_conf, indent=2)
 if args.exp_type in 'WB':
     exp_conf = {
