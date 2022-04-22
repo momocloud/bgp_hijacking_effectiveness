@@ -10,6 +10,7 @@ class Experiment():
     def __init__(self, *exp_confs):
         self.announce_exp_confs_vic = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'victim' in conf]
         self.announce_exp_confs_hij = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'hijacker' in conf]
+        self.announce_exp_confs_oth = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'hijacker' not in conf and 'hijacker' not in conf]
         self.withdraw_exp_confs = [utils.load_json(conf) for conf in exp_confs if 'withdraw' in conf]
         self.muxes = set()
         self.controller = utils.BGPController()
@@ -58,13 +59,27 @@ class Experiment():
         for conf in self.announce_exp_confs_hij:
             print(f'Deploying hijacking announcement {conf}...')
             self._deploy_one_conf(conf)
+
+    def deploy_other_announcement(self):
+        '''
+        Deploy announcements neithor hijackers nor victim.
+        '''
+        for conf in self.announce_exp_confs_oth:
+            print(f'Deploying other announcement {conf}...')
+            self._deploy_one_conf(conf)
         
-    def deploy_all_announcement(self):
+    def deploy_all_announcement(self, wait_time=600):
         '''
         Deploy all announcements.
         '''
-        self.deploy_victim_announcement()
-        self.deploy_hijacker_announcement()
+        if self.announce_exp_confs_hij:
+            self.deploy_victim_announcement()
+            time.sleep(wait_time)
+        if self.announce_exp_confs_vic:
+            self.deploy_hijacker_announcement()
+            time.sleep(wait_time)
+        if self.announce_exp_confs_oth:
+            self.deploy_other_announcement()
 
     def deploy_withdrawal(self):
         '''
