@@ -1,5 +1,4 @@
-/exp_confs/pair/*
-/exp_confs/single/*
+/exp_confs/*
 /test*
 /__pycache__
 /experiments.log
