@@ -11,7 +11,7 @@ class Experiment():
         self.announce_exp_confs_vic = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'victim' in conf]
         self.announce_exp_confs_hij = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'hijacker' in conf]
         self.announce_exp_confs_bas = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'base' in conf]
-        self.announce_exp_confs_oth = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'hijacker' not in conf and 'hijacker' not in conf and 'base' not in conf]
+        self.announce_exp_confs_oth = [utils.load_json(conf) for conf in exp_confs if 'announce' in conf and 'hijacker' not in conf and 'victim' not in conf and 'base' not in conf]
         self.withdraw_exp_confs_bas = [utils.load_json(conf) for conf in exp_confs if 'withdraw' in conf and 'base' in conf]
         self.withdraw_exp_confs_nob = [utils.load_json(conf) for conf in exp_confs if 'withdraw' in conf and 'base' not in conf]
         self.muxes = set()
@@ -40,82 +40,81 @@ class Experiment():
             pprint(f'Established birds: {utils.get_established_bird_muxes(utils.extract_bird_mux_status())}')
             time.sleep(10)
         
-    def _deploy_one_conf(self, conf):
+    def _deploy_one_conf(self, conf, cooling_time):
         self._open_client()
         self.controller.deploy(conf)
         self.deploy_timestamp.setdefault(str(conf), int(time.time()))
-        time.sleep(ANNOUNCE_COOLING_TIME)
+        time.sleep(cooling_time)
 
-    def deploy_victim_announcement(self):
+    def deploy_victim_announcement(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy the victims' announements.
         '''
         for conf in self.announce_exp_confs_vic:
             print(f'Deploying victim announcement {conf}...')
-            self._deploy_one_conf(conf)
+            self._deploy_one_conf(conf, cooling_time)
     
-    def deploy_hijacker_announcement(self):
+    def deploy_hijacker_announcement(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy the hijacker's hijacking announcements.
         '''
         for conf in self.announce_exp_confs_hij:
             print(f'Deploying hijacking announcement {conf}...')
-            self._deploy_one_conf(conf)
+            self._deploy_one_conf(conf, cooling_time)
 
-    def deploy_base_announcement(self):
+    def deploy_base_announcement(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy hijacker's base announcements.
         '''
         for conf in self.announce_exp_confs_bas:
-            print(f'Deploying other announcement {conf}...')
-            self._deploy_one_conf(conf)
-
-    def deploy_other_announcement(self):
+            print(f'Deploying hijacker\'s base announcement {conf}...')
+            self._deploy_one_conf(conf, cooling_time)
+ 
+    def deploy_other_announcement(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy announcements neithor hijackers nor victim.
         '''
         for conf in self.announce_exp_confs_oth:
             print(f'Deploying other announcement {conf}...')
-            self._deploy_one_conf(conf)
+            self._deploy_one_conf(conf, cooling_time)
         
     def deploy_all_announcement(self, wait_time=600):
         '''
         Deploy all announcements.
         '''
         if self.announce_exp_confs_vic:
-            self.deploy_hijacker_announcement()
-            time.sleep(wait_time)
+            self.deploy_victim_announcement(cooling_time=0)
         if self.announce_exp_confs_bas:
             self.deploy_base_announcement()
             time.sleep(wait_time)
         if self.announce_exp_confs_hij:
-            self.deploy_victim_announcement()
+            self.deploy_hijacker_announcement()
             time.sleep(wait_time)
         if self.announce_exp_confs_oth:
             self.deploy_other_announcement()
 
-    def deploy_base_withdrawal(self):
+    def deploy_base_withdrawal(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy withdrawals which is base announcement.
         '''
         for conf in self.withdraw_exp_confs_bas:
             print(f'Deploying base withdrawal {conf}...')
-            self._deploy_one_conf(conf)
+            self._deploy_one_conf(conf, cooling_time)
 
-    def deploy_nonbase_withdrawal(self):
+    def deploy_nonbase_withdrawal(self, cooling_time=ANNOUNCE_COOLING_TIME):
         '''
         Deploy withdrawals which is base announcement.
         '''
         for conf in self.withdraw_exp_confs_nob:
             print(f'Deploying nonbase withdrawal {conf}...')
-            self._deploy_one_conf(conf)
+            self._deploy_one_conf(conf, cooling_time)
 
     def deploy_all_withdrawal(self):
         '''
         Deploy all withdrawals.
         '''
-        self.deploy_base_withdrawal()
-        self.deploy_nonbase_withdrawal()
+        self.deploy_base_withdrawal(cooling_time=0)
+        self.deploy_nonbase_withdrawal(cooling_time=0)
 
     def close(self):
         '''
