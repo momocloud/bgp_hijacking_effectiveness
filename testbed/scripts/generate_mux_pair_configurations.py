@@ -15,7 +15,7 @@ PREFIX_PATH = "./meta_configs/valid_prefixes.json"
 parser = argparse.ArgumentParser(description="produce all pairwise experiment configurations")
 parser.add_argument('-o', '--output_root_dir', dest='out_dir', type=str,
                     help='the root of output directory', default="./exp_confs")
-parser.add_argument('-t', '--type', dest='exp_type', choices=['A', 'W'],
+parser.add_argument('-t', '--type', dest='exp_type', choices=['A', 'W', 'B'],
                     help='type of experiment', required=True)
 parser.add_argument('-n', '--type_num', dest='type_num', type=int,
                     help='the number of hijacking type, default is 1', default=1)
@@ -42,11 +42,11 @@ assert PEERING_PREFIX in utils.load_json(PREFIX_PATH).get("up", [])
 
 asn_left = list(set(utils.load_json(ASN_PATH).get("up", [])) - {HIJACKER, VICTIM})
 
-if args.exp_type == 'A':
+if args.exp_type in 'AB':
     if args.type_num <= 0:
         as_path = [HIJACKER]
     else:
-        as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
+        as_path = [HIJACKER]*args.type_num + [VICTIM]
 
 out_dir = os.path.join(args.out_dir, DIR_TYPE)
 
@@ -59,7 +59,7 @@ for mux_pair in combinations(muxes, 2):
     utils.create_dir(withdrawal_out_dir)
 
     # ANNOUNCEMENT
-    if args.exp_type == 'A':
+    if args.exp_type in 'AB':
         # VICTIM
         exp_conf = {
             PEERING_PREFIX: {
@@ -92,7 +92,7 @@ for mux_pair in combinations(muxes, 2):
         utils.dump_json(f"{announce_out_dir}/announce_hijacker_{mux_pair[1]}.json", exp_conf, indent=2)
 
     #WITHDRAW
-    elif args.exp_type == 'W':
+    if args.exp_type in 'WB':
         exp_conf = {
             PEERING_PREFIX: {
                 "withdraw": [

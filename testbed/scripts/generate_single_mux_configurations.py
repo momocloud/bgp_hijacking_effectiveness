@@ -56,7 +56,7 @@ if args.exp_type in 'AB':
     if args.type_num <= 0:
         as_path = [HIJACKER]
     else:
-        as_path = [HIJACKER] + random.sample(asn_left, args.type_num-1) + [VICTIM]
+        as_path = [HIJACKER]*args.type_num + [VICTIM]
 
 out_dir = os.path.join(args.out_dir, DIR_TYPE, f'{HIJACKER}-{VICTIM}-type{args.type_num}')
 if peers_id is not None:
