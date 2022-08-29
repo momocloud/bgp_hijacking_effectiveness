@@ -5,6 +5,7 @@ from pprint import pprint
 sys.path.append("..") 
 import jsonutils
 
+# *_l means a list for one type of dataset
 
 def get_cols(num):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -44,6 +45,7 @@ def get_datasets_infer(database_num_l):
                 )
         
         # 规整原始数据 - dataset_raw
+        # aligning raw data - dataset_raw
         for collector in dataset_raw['victim'].keys():
             for pair in dataset_raw['victim'][collector].keys():
                 dataset_raw['hijacker'].setdefault(collector, {}).setdefault(pair, float('inf'))
@@ -54,12 +56,13 @@ def get_datasets_infer(database_num_l):
         
         dataset_raw_l.append(dataset_raw)
     
-    # dataset_raw = combine_several_neighbors(dataset_raw_l)
-    # 处理多个dataset_raw 对应多个neighbor的情况
+    # 处理多个dataset_raw 对应多个neighbor的情况，以获得准确的dataset_fin
+    # handle multiple dataset_raw against multiple neighbours to get the exact dataset_fin
     dataset_mid_l = list()
     for dataset_raw in dataset_raw_l:
         for collector in dataset_raw['victim'].keys():
             # 计算差值集 - dataset_mid_l
+            # calculating difference sets - dataset_mid_l
             dataset_mid[collector] = {}
             for pair, val in dataset_raw['victim'][collector].items():
                 dataset_mid[collector][pair] = val - dataset_raw['hijacker'][collector][pair]
@@ -68,6 +71,7 @@ def get_datasets_infer(database_num_l):
     dataset_mid = combine_several_neighbors_mid(dataset_mid_l)
 
     # 计算最大值 - dataset_fin
+    # calculate the maximum value needed to be invisiable completely - dataset_fin
     for collector in dataset_mid.keys():
         max_len = float('-inf')
         for val in dataset_mid[collector].values():
@@ -80,6 +84,7 @@ def get_datasets_infer(database_num_l):
 
 def combine_several_neighbors_mid(dataset_mid_l):
     # 考虑如果有多个输入，合并中间体
+    # consider merging intermediates if there are multiple inputs
     if len(dataset_mid_l) == 1:
         dataset_mid = dataset_mid_l[0]
     else:
@@ -117,8 +122,6 @@ def get_percent_infer(dataset_mid_l, hijacker_prepend_l, asn_only_mode=False, re
         for collector in collectors:
             dataset_mid.setdefault(collector, {})
 
-    # print(dataset_mid_l)
-
     count_dict = dict()
     dangerous_set_dict = dict()      
 
@@ -153,13 +156,6 @@ def get_percent_infer(dataset_mid_l, hijacker_prepend_l, asn_only_mode=False, re
                     reverso = 1
                 
                 count_dict_temp[value_pair[0]] = count_dict_temp.get(value_pair[0], 0) + reverso_value ** reverso
-            
-            # if temp_sum > 0:
-            #     if count_only:
-            #         temp_sum = 1
-            #     temp_percent = round(temp_dangerous / temp_sum, 3)
-            
-            # res.update({monitor: temp_percent})
 
     for monitor in count_dict.keys():
         dangerous_temp = 0
@@ -204,9 +200,9 @@ def get_percent_real(datapath, hijacker_prepend, intersect=True, remove_empty_mo
 def rectification(dataset_per_infer, dataset_per_real, align_to_which=2):
     '''
     align_to_which:
-        0: 对齐dataset_per_infer
-        1: 对齐dataset_per_real
-        else/default: 双补全
+        0: 对齐dataset_per_infer; align to dataset_per_infer
+        1: 对齐dataset_per_real; align to dataset_per_real
+        else/default: 双补全; align to both
     '''
     align_list = list()
     if align_to_which == 0:
@@ -300,6 +296,3 @@ if __name__ == '__main__':
             print('-------clean_dict_prefix-------')
             pprint(clean_dict_prefix)
             break
-
-
-    # hijacking_exp_num = 
