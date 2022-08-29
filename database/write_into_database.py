@@ -10,10 +10,17 @@ class StreamType(Enum):
     UPDATE = "updates"
 
 
-def collect_db(stream_type:StreamType, prefix: str):
+def collect_db(stream_type:StreamType, prefix: str, name=None, continuation=False):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient[stream_type.value]
-    mycol = mydb[prefix]
+    if name is None:
+        name = prefix
+    
+    if not continuation:
+        if name in mydb.list_collection_names():
+            mydb.drop_collection(name)
+
+    mycol = mydb[name]
 
     return mydb, mycol
 
@@ -88,16 +95,16 @@ def main(mycol: pymongo.collection.Collection, stream_type: StreamType, stream: 
     parse_into_db(mycol, stream, stream_type)
 
 
-if __name__ == '__main__':
-    stream_type = StreamType.UPDATE
-    prefix = "184.164.236.0/24"
-    _, mycol = collect_db(stream_type=stream_type, prefix=prefix)
+# if __name__ == '__main__':
+#     stream_type = StreamType.UPDATE
+#     prefix = "184.164.237.0/24"
+#     _, mycol = collect_db(stream_type=stream_type, prefix=prefix, name="184.164.237.0/24_b-39")
 
-    stream = pybgpstream.BGPStream(
-        from_time="2022-03-29 13:50:00", until_time="2022-03-29 14:00:00 UTC",
-        record_type=stream_type.value,
-        filter="prefix exact " + prefix
-    )
+#     stream = pybgpstream.BGPStream(
+#         from_time=1656093665, until_time=1656096666,
+#         record_type=stream_type.value,
+#         filter="prefix exact " + prefix
+#     )
 
-    main(mycol=mycol, stream_type=stream_type, stream=stream)
+#     main(mycol=mycol, stream_type=stream_type, stream=stream)
 

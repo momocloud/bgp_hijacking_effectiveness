@@ -1,9 +1,6 @@
 from copy import deepcopy
-import enum
 import json
 from dataclasses import dataclass
-from os import remove
-from re import L
 import pymongo
 
 
@@ -22,10 +19,10 @@ def get_utc_time_scoop(utc_timestamp, minute_interval):
     time_right = time_left + 60 * minute_interval
     return (time_left, time_right)
 
-class DataManager():
-    def __init__(self):
+class DataManager:
+    def __init__(self, asn_only=True):
         self._get_monitors()
-        self._get_template()
+        self._get_template(asn_only)
 
     def _get_monitors(self):
         with open('../testbed/scripts/meta_configs/routeviews_mons.json', 'r') as f:
@@ -36,9 +33,12 @@ class DataManager():
 
         self.all_mons: list = self.routeviews_mons + self.ris_mons
 
-    def _get_template(self):
+    def _get_template(self, asn_only):
         with open('./pipeline_template.json', 'r') as f:
-            self.pipeline_template: dict = json.load(f)
+            self.pipeline_template = json.load(f)
+        if not asn_only:
+            self.pipeline_template[3]["$group"].update({"_id": "$peer_address"})
+            # print(self.pipeline_template)
 
     def aggregate_constructor(self, as_path_slice: list, monitors: list=None):
         if monitors is None:
@@ -58,8 +58,8 @@ class DataManager():
         
         return agg_pipelines
     
-    def gen_dataset(self, as_path: list, col: pymongo.collection.Collection):
-        return GenedDataSet(as_path, col, self)
+    def gen_dataset(self, as_path: list, col: pymongo.collection.Collection, vic_prepend: int = 0):
+        return GenedDataSet(as_path, col, self, vic_prepend)
 
     def remove_empty_monitors(self, datasets: list):
         empty_poses = list()
@@ -140,7 +140,7 @@ class GenedDataSet:
     victim_list: list
     hijacker_list: list
 
-    def __init__(self, as_path, col, data_manager: DataManager) -> None:
+    def __init__(self, as_path, col, data_manager: DataManager, vic_prepend: int = 0) -> None:
         self.result_dict = {}
         self.monitor_list = []
         self.victim_list = []
@@ -148,7 +148,7 @@ class GenedDataSet:
         self.as_path = as_path
         self.victim_asn = as_path[-1]
         self.col = col
-        self.vic_pipelines = data_manager.aggregate_constructor([as_path[-1]])
+        self.vic_pipelines = data_manager.aggregate_constructor([as_path[-1]] * (vic_prepend+1))
         self.hij_pipelines = data_manager.aggregate_constructor(as_path)
         self._init()
 
