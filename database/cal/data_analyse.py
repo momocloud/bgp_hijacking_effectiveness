@@ -157,6 +157,10 @@ def get_percent_infer(dataset_mid_l, hijacker_prepend_l, asn_only_mode=False, re
                 
                 count_dict_temp[value_pair[0]] = count_dict_temp.get(value_pair[0], 0) + reverso_value ** reverso
 
+
+    dangerous_total = 0
+    sum_total = 0
+
     for monitor in count_dict.keys():
         dangerous_temp = 0
         sum_temp = 0
@@ -173,12 +177,21 @@ def get_percent_infer(dataset_mid_l, hijacker_prepend_l, asn_only_mode=False, re
         if sum_temp > 0:
             percent_temp = round(dangerous_temp / sum_temp, 3)
 
+        dangerous_total += dangerous_temp
+        sum_total += sum_temp
+
         res.update({monitor: percent_temp})
         
+    if count_only: 
+        sum_total = 1
+    if sum_total > 0:
+        res.update({'ALL_TOTAL': round(dangerous_total / sum_total, 3)})
+    
+    # print(f'!!!!!{dangerous_total} == {sum_total}')
     return {k: v for k, v in sorted(res.items(), key=lambda x: x[0]) if (v > 0 or not greater_than_zero_only)}
 
 
-def get_percent_real(datapath, hijacker_prepend, intersect=True, remove_empty_monitors=True, count_only=False, greater_than_zero_only=False):
+def get_percent_real(datapath, hijacker_prepend, intersect=False, remove_empty_monitors=True, count_only=False, greater_than_zero_only=False):
     datasets = jsonutils.parse_dataset_json(datapath)
     if intersect:
         jsonutils.intersect_peer_data(datasets)
@@ -192,10 +205,24 @@ def get_percent_real(datapath, hijacker_prepend, intersect=True, remove_empty_mo
     else:
         count_counter = 1
     
-    res = {dataset.monitor_list[i]: round(dataset.hijacker_list[i] / ((dataset.victim_list[i] + dataset.hijacker_list[i]) ** count_counter), 3) \
-        for i in range(len(dataset.monitor_list)) if dataset.victim_list[i] + dataset.hijacker_list[i] != 0}
+    # res = {dataset.monitor_list[i]: round(dataset.hijacker_list[i] / ((dataset.victim_list[i] + dataset.hijacker_list[i]) ** count_counter), 3) \
+    #     for i in range(len(dataset.monitor_list)) if dataset.victim_list[i] + dataset.hijacker_list[i] != 0}
+    res = dict()
+    dangerous_total = 0
+    sum_total = 0
 
+    for i in range(len(dataset.monitor_list)):
+        if dataset.victim_list[i] + dataset.hijacker_list[i] != 0:
+            res.update({dataset.monitor_list[i]: round(dataset.hijacker_list[i] / ((dataset.victim_list[i] + dataset.hijacker_list[i]) ** count_counter), 3)})
+            dangerous_total += dataset.hijacker_list[i]
+            sum_total += (dataset.victim_list[i] + dataset.hijacker_list[i])
+
+    if sum_total > 0:
+        res.update({'ALL_TOTAL': round(dangerous_total / sum_total ** count_counter, 3)})
+
+    # print(f'!!!!!{dangerous_total} == {sum_total}')
     return {k: v for k, v in sorted(res.items(), key=lambda x: x[0]) if (v > 0 or not greater_than_zero_only)}
+
 
 def rectification(dataset_per_infer, dataset_per_real, align_to_which=2):
     '''
@@ -206,11 +233,15 @@ def rectification(dataset_per_infer, dataset_per_real, align_to_which=2):
     '''
     align_list = list()
     if align_to_which == 0:
-        align_list = dataset_per_infer.keys()
+        align_list = list(dataset_per_infer.keys())
     elif align_to_which == 1:
-        align_list = dataset_per_real.keys()
+        align_list = list(dataset_per_real.keys())
     else:
         align_list = list(set(dataset_per_infer.keys()) | set(dataset_per_real.keys()))
+
+    if 'ALL_TOTAL' not in dataset_per_infer.keys() or 'ALL_TOTAL' not in dataset_per_real.keys():
+        if 'ALL_TOTAL' in align_list:
+            align_list.remove('ALL_TOTAL')
 
     res_infer = {align: dataset_per_infer.get(align, 0.0) for align in align_list}
     res_real = {align: dataset_per_real.get(align, 0.0) for align in align_list}
@@ -221,7 +252,12 @@ def rectification(dataset_per_infer, dataset_per_real, align_to_which=2):
 def get_report(dataset_per_infer, dataset_per_real):
     rt_dataset_per_infer, rt_dataset_per_real = rectification(dataset_per_infer, dataset_per_real, align_to_which=2)
 
-    monitors = rt_dataset_per_infer.keys()
+    monitors = list(rt_dataset_per_infer.keys())
+    all_total_mark = True
+    if 'ALL_TOTAL' in monitors:
+        monitors.remove('ALL_TOTAL')
+    else:
+        all_total_mark = False
     total_len = len(monitors)
     if total_len == 0:
         return None
@@ -237,17 +273,18 @@ def get_report(dataset_per_infer, dataset_per_real):
     diff_per_dict = dict()
 
     for monitor in monitors:
-        if rt_dataset_per_infer[monitor] == 0:
+        if rt_dataset_per_infer[monitor] == 0 and rt_dataset_per_real[monitor] != 0:
             fn_num += 1
             fn_dict.update(dict({monitor: round(rt_dataset_per_infer[monitor] - rt_dataset_per_real[monitor])}))
-        elif rt_dataset_per_real[monitor] == 0:
+        elif rt_dataset_per_real[monitor] == 0 and rt_dataset_per_infer[monitor] != 0:
             fp_num += 1
             fp_dict.update(dict({monitor: round(rt_dataset_per_infer[monitor] - rt_dataset_per_real[monitor], 3)}))
-        else:
+        elif rt_dataset_per_real[monitor] != 0 and rt_dataset_per_infer[monitor] != 0:
             diff_dict.update(dict({monitor: round(rt_dataset_per_infer[monitor] - rt_dataset_per_real[monitor], 3)}))
             diff_per_dict.update(dict({monitor: round((rt_dataset_per_infer[monitor] - rt_dataset_per_real[monitor]) / rt_dataset_per_real[monitor], 3)}))
         clean_dict.update({monitor: (rt_dataset_per_infer[monitor], rt_dataset_per_real[monitor])})
-        
+    if all_total_mark:
+        clean_dict.update({'ALL_TOTAL': (rt_dataset_per_infer['ALL_TOTAL'], rt_dataset_per_real['ALL_TOTAL'])})
 
     fp_rate = round(fp_num / total_len, 3)
     fn_rate = round(fn_num / total_len, 3)
@@ -259,7 +296,7 @@ def get_report(dataset_per_infer, dataset_per_real):
 
 if __name__ == '__main__':
     
-    hijacking_exp_num_l = [48]
+    hijacking_exp_num_l = [56]
 
     for hijacking_exp_num in hijacking_exp_num_l:
         print(f'\n!!!!!!!!!!!!!!!!!!!!!!{hijacking_exp_num}!!!!!!!!!!!!!!!!!!!!!!')
@@ -267,32 +304,37 @@ if __name__ == '__main__':
 
         prepend_num_l = [i+1 for i in range(4)]
         _, dataset_mid, dataset_fin = get_datasets_infer(base_exp_num)
+        # pprint(dataset_mid)
+        # '''
         print(dataset_fin)
         print(f"predict value: {max([x for x in dataset_fin.values() if x != float('inf')])}")
 
         for prepend_num in prepend_num_l:
-            dataset_per_infer_asn = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=True, greater_than_zero_only=False)
+            # dataset_per_infer_asn = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=True, greater_than_zero_only=False)
             dataset_per_infer_prefix = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=False, greater_than_zero_only=False)
-            dataset_per_real_asn = get_percent_real(f'../data/a_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, intersect=False, greater_than_zero_only=False)
-            dataset_per_real_prefix = get_percent_real(f'../data/p_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, intersect=False, greater_than_zero_only=False)
+            # dataset_per_real_asn = get_percent_real(f'../data/a_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, intersect=False, greater_than_zero_only=False)
+            dataset_per_real_prefix = get_percent_real(f'../data/p_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, greater_than_zero_only=False)
 
+            # pprint(dataset_per_infer_prefix)
+            # pprint(dataset_per_real_prefix)
 
-            (fp_rate_asn, fn_rate_asn), (fp_dict_asn, fn_dict_asn, diff_dict_asn, diff_per_dict_asn), clean_dict_asn = get_report(dataset_per_infer_asn, dataset_per_real_asn)
+            # (fp_rate_asn, fn_rate_asn), (fp_dict_asn, fn_dict_asn, diff_dict_asn, diff_per_dict_asn), clean_dict_asn = get_report(dataset_per_infer_asn, dataset_per_real_asn)
             (fp_rate_prefix, fn_rate_prefix), (fp_dict_prefix, fn_dict_prefix, diff_dict_prefix, diff_per_dict_prefix), clean_dict_prefix = get_report(dataset_per_infer_prefix, dataset_per_real_prefix)
-
-            print()
+        
+            # print()
             print(f'=======Result of prepend {prepend_num}=======')
-            print(f'fp_rate_asn: {fp_rate_asn}, fn_rate_asn: {fn_rate_asn}')
+            # print(f'fp_rate_asn: {fp_rate_asn}, fn_rate_asn: {fn_rate_asn}')
             print(f'fp_rate_prefix: {fp_rate_prefix}, fn_rate_prefix: {fn_rate_prefix}')
-            print('-------clean_dict_asn-------')
-            pprint(clean_dict_asn)
-            print(f'-------diff_dict_asn-------')
-            pprint(diff_dict_asn)
-            print(f'average: {round(sum([abs(x) for x in diff_dict_asn.values()]) / len(diff_dict_asn.values()), 3)}')
-            print(f'-------diff_per_dict_asn-------')
-            pprint(diff_per_dict_asn)
-            print(f'average: {round(sum([abs(x) for x in diff_per_dict_asn.values()]) / len(diff_per_dict_asn.values()), 3)}')
+            # print('-------clean_dict_asn-------')
+            # pprint(clean_dict_asn)
+            # print(f'-------diff_dict_asn-------')
+            # pprint(diff_dict_asn)
+            # print(f'average: {round(sum([abs(x) for x in diff_dict_asn.values()]) / len(diff_dict_asn.values()), 3)}')
+            # print(f'-------diff_per_dict_asn-------')
+            # pprint(diff_per_dict_asn)
+            # print(f'average: {round(sum([abs(x) for x in diff_per_dict_asn.values()]) / len(diff_per_dict_asn.values()), 3)}')
 
             print('-------clean_dict_prefix-------')
             pprint(clean_dict_prefix)
-            break
+        
+            # break

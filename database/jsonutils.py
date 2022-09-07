@@ -140,7 +140,7 @@ if __name__ == '__main__':
     }
     
     for num in pair_dict.keys():
-        datasets = parse_dataset_json(f'./data/a_184_164_236_0=24-{num}.json')
+        datasets = parse_dataset_json(f'./data/p_184_164_236_0=24-{num}.json')
         intersect_peer_data(datasets)
         empty_monitor_list = remove_empty_monitors(datasets)
-        plot_peers(datasets, f'./figures/a_184_164_236_0=24-{num}.pdf')
+        plot_peers(datasets, f'./figures/p_184_164_236_0=24-{num}.pdf')
