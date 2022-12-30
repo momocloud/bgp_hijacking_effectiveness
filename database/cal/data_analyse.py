@@ -220,7 +220,6 @@ def get_percent_real(datapath, hijacker_prepend, intersect=False, remove_empty_m
     if sum_total > 0:
         res.update({'ALL_TOTAL': round(dangerous_total / sum_total ** count_counter, 3)})
 
-    # print(f'!!!!!{dangerous_total} == {sum_total}')
     return {k: v for k, v in sorted(res.items(), key=lambda x: x[0]) if (v > 0 or not greater_than_zero_only)}
 
 
@@ -304,37 +303,37 @@ if __name__ == '__main__':
 
         prepend_num_l = [i+1 for i in range(4)]
         _, dataset_mid, dataset_fin = get_datasets_infer(base_exp_num)
-        # pprint(dataset_mid)
+        pprint(dataset_mid)
         # '''
-        print(dataset_fin)
-        print(f"predict value: {max([x for x in dataset_fin.values() if x != float('inf')])}")
+        # print(dataset_mid)
+        # print(f"predict value: {max([x for x in dataset_fin.values() if x != float('inf')])}")
 
-        for prepend_num in prepend_num_l:
-            # dataset_per_infer_asn = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=True, greater_than_zero_only=False)
-            dataset_per_infer_prefix = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=False, greater_than_zero_only=False)
-            # dataset_per_real_asn = get_percent_real(f'../data/a_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, intersect=False, greater_than_zero_only=False)
-            dataset_per_real_prefix = get_percent_real(f'../data/p_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, greater_than_zero_only=False)
+        # for prepend_num in prepend_num_l:
+        #     # dataset_per_infer_asn = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=True, greater_than_zero_only=False)
+        #     dataset_per_infer_prefix = get_percent_infer(dataset_mid, prepend_num, reverso_value=1, asn_only_mode=False, greater_than_zero_only=False)
+        #     # dataset_per_real_asn = get_percent_real(f'../data/a_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, intersect=False, greater_than_zero_only=False)
+        #     dataset_per_real_prefix = get_percent_real(f'../data/p_184_164_236_0=24-{hijacking_exp_num}.json', prepend_num, greater_than_zero_only=False)
 
-            # pprint(dataset_per_infer_prefix)
-            # pprint(dataset_per_real_prefix)
+        #     # pprint(dataset_per_infer_prefix)
+        #     # pprint(dataset_per_real_prefix)
 
-            # (fp_rate_asn, fn_rate_asn), (fp_dict_asn, fn_dict_asn, diff_dict_asn, diff_per_dict_asn), clean_dict_asn = get_report(dataset_per_infer_asn, dataset_per_real_asn)
-            (fp_rate_prefix, fn_rate_prefix), (fp_dict_prefix, fn_dict_prefix, diff_dict_prefix, diff_per_dict_prefix), clean_dict_prefix = get_report(dataset_per_infer_prefix, dataset_per_real_prefix)
+        #     # (fp_rate_asn, fn_rate_asn), (fp_dict_asn, fn_dict_asn, diff_dict_asn, diff_per_dict_asn), clean_dict_asn = get_report(dataset_per_infer_asn, dataset_per_real_asn)
+        #     (fp_rate_prefix, fn_rate_prefix), (fp_dict_prefix, fn_dict_prefix, diff_dict_prefix, diff_per_dict_prefix), clean_dict_prefix = get_report(dataset_per_infer_prefix, dataset_per_real_prefix)
         
-            # print()
-            print(f'=======Result of prepend {prepend_num}=======')
-            # print(f'fp_rate_asn: {fp_rate_asn}, fn_rate_asn: {fn_rate_asn}')
-            print(f'fp_rate_prefix: {fp_rate_prefix}, fn_rate_prefix: {fn_rate_prefix}')
-            # print('-------clean_dict_asn-------')
-            # pprint(clean_dict_asn)
-            # print(f'-------diff_dict_asn-------')
-            # pprint(diff_dict_asn)
-            # print(f'average: {round(sum([abs(x) for x in diff_dict_asn.values()]) / len(diff_dict_asn.values()), 3)}')
-            # print(f'-------diff_per_dict_asn-------')
-            # pprint(diff_per_dict_asn)
-            # print(f'average: {round(sum([abs(x) for x in diff_per_dict_asn.values()]) / len(diff_per_dict_asn.values()), 3)}')
+        #     # print()
+        #     print(f'=======Result of prepend {prepend_num}=======')
+        #     # print(f'fp_rate_asn: {fp_rate_asn}, fn_rate_asn: {fn_rate_asn}')
+        #     print(f'fp_rate_prefix: {fp_rate_prefix}, fn_rate_prefix: {fn_rate_prefix}')
+        #     # print('-------clean_dict_asn-------')
+        #     # pprint(clean_dict_asn)
+        #     # print(f'-------diff_dict_asn-------')
+        #     # pprint(diff_dict_asn)
+        #     # print(f'average: {round(sum([abs(x) for x in diff_dict_asn.values()]) / len(diff_dict_asn.values()), 3)}')
+        #     # print(f'-------diff_per_dict_asn-------')
+        #     # pprint(diff_per_dict_asn)
+        #     # print(f'average: {round(sum([abs(x) for x in diff_per_dict_asn.values()]) / len(diff_per_dict_asn.values()), 3)}')
 
-            print('-------clean_dict_prefix-------')
-            pprint(clean_dict_prefix)
+        #     print('-------clean_dict_prefix-------')
+        #     pprint(clean_dict_prefix)
         
-            # break
+        #     # break

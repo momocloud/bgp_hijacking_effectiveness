@@ -74,8 +74,8 @@ if __name__ == '__main__':
                     [61575, 61575, 61575, 61575, 61576]
                     ]
             
-        datasets_asn = gen_datasets(cols, aspaths, prepend_times, False)
-        datasets_pre = gen_datasets(cols, aspaths, prepend_times, True)
+        datasets_asn = gen_datasets(cols, aspaths, prepend_times, True)
+        datasets_pre = gen_datasets(cols, aspaths, prepend_times, False)
 
         file_name_asn = f"./data/a_184_164_236_0=24-{num}.json"
         file_name_pre = f"./data/p_184_164_236_0=24-{num}.json"
