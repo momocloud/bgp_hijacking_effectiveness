@@ -1,0 +1,26 @@
+[
+    {"$match" : { 
+        "latest" : true
+        }
+    }, 
+    {"$match" : { 
+        "$expr" : { 
+            "$eq" : 
+                [
+                    { 
+                        "$slice" : [
+                            "$as_path", 
+                            -1
+                        ]
+                    }, 
+                    ["47065"]
+                ]
+            }
+        }
+    },
+    { 
+        "$group" : { 
+            "_id" : "$as_path"
+        }
+    }
+]
